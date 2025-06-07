@@ -1,5 +1,5 @@
-import Image from "next/image";
+import { TodoPage } from "@/components/todos";
 
 export default function Home() {
-  return <h2>Home</h2>;
+  return <TodoPage />;
 }
