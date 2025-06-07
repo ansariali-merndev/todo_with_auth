@@ -1,15 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const TodoPage = () => {
   const [task, setTask] = useState("");
+  const [todos, setTodos] = useState([]);
 
-  const todos = [
-    { task: "Learn Mongodb", completed: true },
-    { task: "Learn Java", completed: false },
-    { task: "Learn Python", completed: true },
-  ];
+  const handleGetAllTodos = async () => {
+    try {
+      const res = await fetch("/api/todos");
+      const data = await res.json();
+      if (data.message === "success") {
+        setTodos(data.data);
+      } else {
+        setTodos([]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    handleGetAllTodos();
+  }, []);
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    const res = await fetch("/api/todos", {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify({ task }),
+    });
+    const data = await res.json();
+    if (data.message === "success") {
+      setTask("");
+      handleGetAllTodos();
+    }
+  };
 
   return (
     <section className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
@@ -18,7 +47,10 @@ export const TodoPage = () => {
           📝 Todo Application
         </h1>
 
-        <form className="flex items-center mb-6 gap-2">
+        <form
+          onSubmit={handleFormSubmit}
+          className="flex items-center mb-6 gap-2"
+        >
           <input
             type="text"
             required
@@ -48,8 +80,9 @@ export const TodoPage = () => {
                 <input
                   type="checkbox"
                   checked={completed}
-                  readOnly
+                  onChange={() => {}}
                   className="w-5 h-5 accent-purple-600"
+                  name="chekc"
                 />
                 <span
                   className={`text-lg ${
