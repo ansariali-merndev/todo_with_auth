@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Swal from "sweetalert2";
 
 export const Register = ({ setOpenLogin, setRegister }) => {
   const [formData, setFormData] = useState({
@@ -14,11 +15,50 @@ export const Register = ({ setOpenLogin, setRegister }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Submitted:", formData);
-    // Reset form (optional)
-    setFormData({ name: "", email: "", password: "" });
+    const { name, email, password } = formData;
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, email, password }),
+    });
+    const data = await res.json();
+    console.log(formData);
+    if (data.message === "success") {
+      Swal.fire({
+        toast: true,
+        position: "top-end", // top-start, top-end, bottom-end, etc.
+        icon: "success",
+        title: "Account created successfully!",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      setFormData({ name: "", email: "", password: "" });
+    } else if (data.message === "failed") {
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "error",
+        title: "User with this email already exists!",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+    } else {
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "error",
+        title: "Something went wrong",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+    }
   };
 
   const handleLogin = () => {
