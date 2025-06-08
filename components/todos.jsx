@@ -1,15 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BarLoader } from "react-spinners";
 
 export const TodoPage = () => {
   const [task, setTask] = useState("");
   const [todos, setTodos] = useState([]);
+  const [loader, setLoader] = useState(false);
 
   const handleGetAllTodos = async () => {
     try {
+      setLoader(true);
       const res = await fetch("/api/todos");
       const data = await res.json();
+      setLoader(false);
       if (data.message === "success") {
         setTodos(data.data);
       } else {
@@ -54,6 +58,20 @@ export const TodoPage = () => {
     }
   };
 
+  const handleToggleComplete = async (_id, completed) => {
+    const res = await fetch("/api/todos", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ _id, completed }),
+    });
+    const data = await res.json();
+    if (data.message === "success") {
+      handleGetAllTodos();
+    }
+  };
+
   return (
     <section className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
       <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
@@ -61,6 +79,7 @@ export const TodoPage = () => {
           📝 Todo Application
         </h1>
 
+        {loader && <BarLoader color="blue" width={"100%"} />}
         <form
           onSubmit={handleFormSubmit}
           className="flex items-center mb-6 gap-2"
@@ -94,7 +113,7 @@ export const TodoPage = () => {
                 <input
                   type="checkbox"
                   checked={completed}
-                  onChange={() => {}}
+                  onChange={() => handleToggleComplete(_id, !completed)}
                   className="w-5 h-5 accent-purple-600"
                   name="completed"
                 />
@@ -108,12 +127,6 @@ export const TodoPage = () => {
               </div>
 
               <div className="flex gap-2">
-                <button
-                  className="px-3 py-1 text-sm bg-yellow-500 hover:bg-yellow-600 text-white rounded-md"
-                  onClick={() => alert("Edit functionality coming soon")}
-                >
-                  Edit
-                </button>
                 <button
                   className="px-3 py-1 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md"
                   onClick={() => handleDeleteTodo(_id)}
