@@ -2,6 +2,7 @@ import { connectDB } from "@/lib/configdb";
 import { User_DB } from "@/model/UserModel";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
+import { createHmac } from "crypto";
 
 export async function POST(request) {
   await connectDB();
@@ -25,8 +26,15 @@ export async function POST(request) {
       });
     }
 
+    //* ------------------- CreateHmac ---------------------
+    const signature = createHmac("sha256", process.env.COOKIE_SECRET)
+      .update(checkUser._id.toString())
+      .digest("hex");
+
+    const cookie = `${signature}.${checkUser._id}`;
+
     //* -------------------- Store Cokie user Logged in ----------------------
-    cookieStore.set("userId", checkUser._id, {
+    cookieStore.set("userId", cookie, {
       httpOnly: true,
       path: "/",
       maxAge: 60 * 60 * 24,

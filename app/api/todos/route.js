@@ -10,7 +10,6 @@ export async function GET() {
   }
   try {
     const data = await Todo_DB.find({ userId });
-    console.log(data);
     return Response.json({
       message: "success",
       data,
