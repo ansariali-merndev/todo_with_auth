@@ -3,6 +3,7 @@ import { User_DB } from "@/model/UserModel";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { createHmac } from "crypto";
+import { Session_db } from "@/model/SessionAuth";
 
 export async function POST(request) {
   await connectDB();
@@ -26,15 +27,20 @@ export async function POST(request) {
       });
     }
 
+    //* -------------- Store Session Id ------------------
+    const session = await Session_db.create({
+      userId: checkUser._id,
+    });
+
     //* ------------------- CreateHmac ---------------------
     const signature = createHmac("sha256", process.env.COOKIE_SECRET)
-      .update(checkUser._id.toString())
+      .update(session._id.toString())
       .digest("hex");
 
-    const cookie = `${signature}.${checkUser._id}`;
+    const cookie = `${signature}.${session._id}`;
 
     //* -------------------- Store Cokie user Logged in ----------------------
-    cookieStore.set("userId", cookie, {
+    cookieStore.set("sessionId", cookie, {
       httpOnly: true,
       path: "/",
       maxAge: 60 * 60 * 24,
