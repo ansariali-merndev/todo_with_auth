@@ -40,6 +40,20 @@ export const TodoPage = () => {
     }
   };
 
+  const handleDeleteTodo = async (_id) => {
+    const res = await fetch("/api/todos", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ _id }),
+    });
+    const data = await res.json();
+    if (data.message === "success") {
+      handleGetAllTodos();
+    }
+  };
+
   return (
     <section className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
       <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
@@ -69,9 +83,9 @@ export const TodoPage = () => {
         </form>
 
         <ul className="space-y-3">
-          {todos.map(({ task, completed }, index) => (
+          {todos.map(({ _id, task, completed }, index) => (
             <li
-              key={index}
+              key={_id}
               className={`flex items-center justify-between p-3 border rounded-md ${
                 completed ? "bg-green-100" : "bg-gray-50"
               }`}
@@ -82,7 +96,7 @@ export const TodoPage = () => {
                   checked={completed}
                   onChange={() => {}}
                   className="w-5 h-5 accent-purple-600"
-                  name="chekc"
+                  name="completed"
                 />
                 <span
                   className={`text-lg ${
@@ -91,6 +105,21 @@ export const TodoPage = () => {
                 >
                   {task}
                 </span>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  className="px-3 py-1 text-sm bg-yellow-500 hover:bg-yellow-600 text-white rounded-md"
+                  onClick={() => alert("Edit functionality coming soon")}
+                >
+                  Edit
+                </button>
+                <button
+                  className="px-3 py-1 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md"
+                  onClick={() => handleDeleteTodo(_id)}
+                >
+                  Delete
+                </button>
               </div>
             </li>
           ))}

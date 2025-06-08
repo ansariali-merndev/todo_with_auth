@@ -33,3 +33,18 @@ export async function POST(request) {
     });
   }
 }
+
+export async function DELETE(request) {
+  try {
+    const { _id } = await request.json();
+    await Todo_DB.deleteOne({ _id });
+    return Response.json({
+      message: "success",
+    });
+  } catch (error) {
+    console.log(error);
+    return Response.json({
+      message: "error",
+    });
+  }
+}
