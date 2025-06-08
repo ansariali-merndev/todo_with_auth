@@ -2,18 +2,31 @@
 
 import { useEffect, useState } from "react";
 import { BarLoader } from "react-spinners";
+import Swal from "sweetalert2";
 
 export const TodoPage = () => {
   const [task, setTask] = useState("");
   const [todos, setTodos] = useState([]);
   const [loader, setLoader] = useState(false);
 
+  //! -------------- get request ----------------
   const handleGetAllTodos = async () => {
     try {
       setLoader(true);
       const res = await fetch("/api/todos");
       const data = await res.json();
       setLoader(false);
+      if (data.message === "unauthorized") {
+        return Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "warning",
+          title: "Please login to continue",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+        });
+      }
       if (data.message === "success") {
         setTodos(data.data);
       } else {
@@ -28,6 +41,7 @@ export const TodoPage = () => {
     handleGetAllTodos();
   }, []);
 
+  //! -----------------Post Request ---------------------------
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     const res = await fetch("/api/todos", {
@@ -38,6 +52,17 @@ export const TodoPage = () => {
       body: JSON.stringify({ task }),
     });
     const data = await res.json();
+    if (data.message === "unauthorized") {
+      return Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "warning",
+        title: "Please login to continue",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+    }
     if (data.message === "success") {
       setTask("");
       handleGetAllTodos();

@@ -1,10 +1,16 @@
+import { CheckAuth } from "@/lib/authMiddleware";
 import { connectDB } from "@/lib/configdb";
 import { Todo_DB } from "@/model/TodosModel";
 
 export async function GET() {
   await connectDB();
+  const userId = await CheckAuth();
+  if (userId instanceof Response) {
+    return userId;
+  }
   try {
-    const data = await Todo_DB.find();
+    const data = await Todo_DB.find({ userId });
+    console.log(data);
     return Response.json({
       message: "success",
       data,
@@ -19,9 +25,13 @@ export async function GET() {
 
 export async function POST(request) {
   await connectDB();
+  const userId = await CheckAuth();
+  if (userId instanceof Response) {
+    return userId;
+  }
   try {
     const { task } = await request.json();
-    const Todo = new Todo_DB({ task });
+    const Todo = new Todo_DB({ userId, task });
     await Todo.save();
     return Response.json({
       message: "success",
@@ -36,6 +46,10 @@ export async function POST(request) {
 
 export async function DELETE(request) {
   await connectDB();
+  const userId = await CheckAuth();
+  if (userId instanceof Response) {
+    return userId;
+  }
   try {
     const { _id } = await request.json();
     await Todo_DB.deleteOne({ _id });
@@ -52,6 +66,10 @@ export async function DELETE(request) {
 
 export async function PUT(request) {
   await connectDB();
+  const userId = await CheckAuth();
+  if (userId instanceof Response) {
+    return userId;
+  }
   try {
     const { _id, completed } = await request.json();
     await Todo_DB.findByIdAndUpdate(_id, { completed }, { new: true });

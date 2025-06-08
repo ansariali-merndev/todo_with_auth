@@ -26,7 +26,6 @@ export const Register = ({ setOpenLogin, setRegister }) => {
       body: JSON.stringify({ name, email, password }),
     });
     const data = await res.json();
-    console.log(formData);
     if (data.message === "success") {
       Swal.fire({
         toast: true,

@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 
 const TodosSchema = mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
   task: {
     type: String,
     required: true,

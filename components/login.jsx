@@ -1,16 +1,57 @@
 "use client";
 
 import { useState } from "react";
+import Swal from "sweetalert2";
 
 export const Login = ({ setOpenLogin, setRegister }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLoginForm = (e) => {
+  const handleLoginForm = async (e) => {
     e.preventDefault();
-    console.log("Email: ", email, "Password: ", password);
-    setEmail("");
-    setPassword("");
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    console.log(data);
+    if (data.message === "success") {
+      Swal.fire({
+        toast: true,
+        position: "top-end", // top-start, top-end, bottom-end, etc.
+        icon: "success",
+        title: "Sign in successfully!",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      setEmail("");
+      setPassword("");
+      setOpenLogin(false);
+    } else if (data.message === "failed") {
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "error",
+        title: "Invalid Credential",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+    } else {
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "error",
+        title: "Something went wrong",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+    }
   };
 
   const handleRegister = () => {
